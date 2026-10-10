@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // A profile can only be created/read/updated by its authenticated owner.
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.email == request.auth.token.email;
+      allow read, update, delete: if request.auth != null
+                                  && request.auth.uid == userId;
+    }
+  }
+}
